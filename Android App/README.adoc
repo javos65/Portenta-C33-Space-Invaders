@@ -1,0 +1,10 @@
+:repository-owner: Jay Fox
+:repository-name: Invaders Remote App
+
+= {repository-name} Library for Arduino = https://github.com/javos65
+
+These Apps are build with MIT App Inventor https://ai2.appinventor.mit.edu/
+Free usalbe to modify for own purposes
+APK - file: Arduino install
+AAB - file : Arduino package
+AIA - file : MIT AI design files
