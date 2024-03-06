@@ -7,7 +7,7 @@ ____
 
 This is a gameplay fir Saoce Invaders with control interface by adding ***BLE remote control***
 
-[Original DObject based Github page](https://github.com/YXHYX/arduino-space-invaders)
+[Original Object based Github page](https://github.com/YXHYX/arduino-space-invaders)
 
 
 This mod was made by using Portenta C33 and HAT expansion board.
