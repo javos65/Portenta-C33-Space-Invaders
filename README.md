@@ -1,5 +1,5 @@
 # Arduino Space Invaders remote BLE
-![logo](/images/splash.bmp?raw=true)
+![logo](/images/Splash.bmp?raw=true)
 ## A gameplay mod for arduino doom Portenta C33 and HAT Expansion board with _ILI9 based 480x320 LCD
 ____
 
