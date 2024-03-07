@@ -1,13 +1,13 @@
 # Arduino Space Invaders remote BLE
-![logo](/images/spalsh.bmp?raw=true)
-## A gameplay mod for arduino doom Portenta C33 and HAT Expansion board with _ILI9 based 480x320 LCD
+![logo](/images/Splash.bmp?raw=true)
+## A gameplay mod for arduino doom Portenta C33 and HAT Expansion board with ILI9486 based 480x320 LCD
 ____
 
 ## About
 
 This is a gameplay fir Saoce Invaders with control interface by adding ***BLE remote control***
 
-[Original DObject based Github page](https://github.com/YXHYX/arduino-space-invaders)
+[Original Object based Github page](https://github.com/YXHYX/arduino-space-invaders)
 
 
 This mod was made by using Portenta C33 and HAT expansion board.
