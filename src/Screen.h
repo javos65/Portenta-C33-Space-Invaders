@@ -73,10 +73,15 @@
 #define ICONHEIGHT  55
 #define ICONWIDTH   55
 
+#define MINIX   12
+#define MINIY   10
+
+extern  const uint16_t laserexplode2[PLAYERSY][PLAYERSX];
 extern  const uint16_t laserexplode[PLAYERSY][PLAYERSX];
 extern  const uint16_t laser[PLAYERSY][PLAYERSX] ;
 extern  const uint16_t LevelUp[LOGOHEIGHT][LOGOWIDTH];
 extern  const uint16_t GameOver[LOGOHEIGHT][LOGOWIDTH];
+extern const int16_t LevelOver[LOGOHEIGHT][LOGOWIDTH]  ;
 extern  const uint16_t EBVlogo[LOGOHEIGHT][LOGOWIDTH];
 extern  const uint16_t RENlogo[LOGOHEIGHT][LOGOWIDTH];
 extern  const uint16_t invader3_2[ENEMYSY][ENEMYSX];
@@ -91,5 +96,6 @@ extern const uint16_t Renesas2[LOGOHEIGHT][LOGOWIDTH] ;
 extern const uint16_t BLE_on[ICONHEIGHT][ICONWIDTH];
 extern const uint16_t BLE_off[ICONHEIGHT][ICONWIDTH];
 extern const uint16_t Splash[LCDHEIGHT][LCDWIDTH]; 
+extern const int16_t shipcount[MINIY][MINIX];
 
 #endif  SCREEN_H

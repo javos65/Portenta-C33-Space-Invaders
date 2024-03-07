@@ -16,10 +16,9 @@
 #include "Screen.h"
 
 //Constructor / Destructor
-Level::Level(int difficulty, Waveshare_ILI9486 *tft, int VRx, int VRy, int SW, int B)
-	: m_tft(m_tft), VRx(VRx), VRy(VRy), SW(SW), B(B)
-{
-	this->init(difficulty, tft, VRx, VRy, SW, B);
+Level::Level(int difficulty, Waveshare_ILI9486 *tft, int B, int Ships)
+	: m_tft(m_tft), B(B) {
+	this->init(difficulty, tft, B, Ships);
 	this->levelCompleted = false;
 	this->playerAlive = true;
 }
@@ -63,10 +62,10 @@ void Level::setDifficulty(int difficulty)
 }
 
 //Initializers
-void Level::init(int difficulty, Waveshare_ILI9486 *tft, int VRx, int VRy, int SW, int B)
+void Level::init(int difficulty, Waveshare_ILI9486 *tft, int B, int Ships)
 {
 	this->setDifficulty(difficulty);
-	this->initPlayer(tft, VRx, VRy, SW, B);
+	this->initPlayer(tft, B, Ships);
 
 	switch(this->m_difficulty)
 	{
@@ -99,9 +98,9 @@ void Level::init(int difficulty, Waveshare_ILI9486 *tft, int VRx, int VRy, int S
 }
 
 
-void Level::initPlayer(Waveshare_ILI9486 *tft, int VRx, int VRy, int SW, int B)
+void Level::initPlayer(Waveshare_ILI9486 *tft, int B, int Ships)
 {
-	m_player = new Player(tft, VRx, VRy, SW, B);
+	m_player = new Player(tft, B, Ships);
   this->m_player->initControl();
 }
 

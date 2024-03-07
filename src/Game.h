@@ -36,6 +36,7 @@ private:
 	int m_highScore;
 	bool m_gameOver;
 	int m_difficulty;
+  int m_ships;
 	Level* m_level;
   uint32_t m_retimer;
 	int VRx;
@@ -48,19 +49,21 @@ private:
 
 	Waveshare_ILI9486 *m_tft;
 public:
-    Game(Waveshare_ILI9486 *tft, int VRx, int VR, int SW, int B);
+    Game(Waveshare_ILI9486 *tft, int B);
     virtual ~Game();
 	
 	
 	void showScore(bool on);
 	void levelComplete();
 	void levelOver();
+  void gameOver();
 	
 	void run(int interval);
     void render();
     void update();
 
 	void init();
+  void firstscreen();
 
 };
 

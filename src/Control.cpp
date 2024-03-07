@@ -46,7 +46,9 @@ void Control::getKeys(){
 }
 
 void Control::init(){	 
-
+	this->pressed_x = 0, this->pressed_y = 0, this->pressed_s = 0;
+	this->prevx = 0, this->prevy = 0, this->prevs = 0;
+  this->keyvalue = 0;
 }
 
 

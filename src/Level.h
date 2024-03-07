@@ -25,9 +25,6 @@ class Level
 private:
 	
 	int m_difficulty;
-	int VRx;
-	int VRy; 
-	int SW; 
 	int B;
 	int enemyAmount;
 	
@@ -42,7 +39,7 @@ private:
 	bool enemiesDead();
 	
 public:
-	Level(int difficulty, Waveshare_ILI9486 *tft, int VRx, int VRy, int SW, int B);
+	Level(int difficulty, Waveshare_ILI9486 *tft, int B, int Ships);
 	virtual ~Level();
 	
 	//Getters
@@ -54,13 +51,12 @@ public:
 	void setDifficulty(int difficulty);
 
 	//Initializers
-	void init(int difficulty, Waveshare_ILI9486 *tft, int VRx, int VRy, int SW, int B);
-	void initPlayer(Waveshare_ILI9486 *tft, int VRx, int VRy, int SW, int B);
+	void init(int difficulty, Waveshare_ILI9486 *tft, int B, int Ships);
+	void initPlayer(Waveshare_ILI9486 *tft, int B , int Ships);
 	void initEnemies(int amount, Waveshare_ILI9486 *m_tft, int B, int Orbit);
 	
 	//functions
 	void levelComplete();
-	
 	void update();
 	void render();
 	

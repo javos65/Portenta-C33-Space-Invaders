@@ -16,8 +16,7 @@
 #include "Screen.h"
 
 
-Player::Player(Waveshare_ILI9486 *tft, int VRx, int VRy, int SW, int B)
-: tft(tft), VRx(VRx), VRy(VRy), SW(SW){
+Player::Player(Waveshare_ILI9486 *tft, int B, int Ships) : tft(tft) {
 	this->x = PLAYERROWX , this->y = PLAYERROWY;
 	this->prevx = PLAYERROWX ,this->prevy=PLAYERROWY;
 	this->bulletx = 0, this->bullety = 0;
@@ -25,7 +24,7 @@ Player::Player(Waveshare_ILI9486 *tft, int VRx, int VRy, int SW, int B)
 
   this->bullet2x = 0, this->bullet2y = 0;
 	this->bullet2Shoot = false;
-
+  this->ships = Ships;
 	this->prevx = 0, this->prevy = 0;
 	this->score = 0;
 	this->buzzer = B;
@@ -36,6 +35,7 @@ Player::Player(Waveshare_ILI9486 *tft, int VRx, int VRy, int SW, int B)
 
 Player::~Player(){
     delete tft;
+    delete m_control;
 }
 
 void Player::shoot(){
@@ -119,11 +119,10 @@ bool Player::collide(int x1, int y1){
     for(int i = 0; i<20; ++i)  // make & shake explosion :)
         {
         tft->fillRect(this->prevx, this->prevy,PLAYERSX,PLAYERSY, BLACK);
-        tft->drawColors((int16_t)this->x,(int16_t)this->y,(int16_t) PLAYERSX, (int16_t) PLAYERSY,(uint16_t *) laserexplode);  // EXPLODE if HIT
         this->prevx = x;this->prevy = y;       // then update to new position
-        if(i%2){ x = x+3; }   
-        else { x = x-3;   }  
-        delay(25); // wait after collide
+        if(i%2) { x = x+3;   tft->drawColors((int16_t)this->x,(int16_t)this->y,(int16_t) PLAYERSX, (int16_t) PLAYERSY,(uint16_t *) laserexplode); }  // EXPLODE if HIT}   
+        else    { x = x-3;   tft->drawColors((int16_t)this->x,(int16_t)this->y,(int16_t) PLAYERSX, (int16_t) PLAYERSY,(uint16_t *) laserexplode2);} // EXPLODE if HIT }  
+        delay(50); // wait after collide
         }
 
 
@@ -169,6 +168,7 @@ int i,j;
     }
     tft->drawColors((int16_t)x,(int16_t)y,(int16_t) PLAYERSX, (int16_t) PLAYERSY,(uint16_t *) laser); 
  }
+ 
 }
 
 int Player::getBX(){

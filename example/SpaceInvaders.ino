@@ -29,19 +29,18 @@
 	Waveshare_ILI9486 tft; // change your setting for SPI interface in the library Waveshare_ILI9486.h  / .cpp
 
 //Create a Game object
-Game game(&tft, A2, A3, 7, 6); // pins are not of interest, using BLE routines
+Game game(&tft, 6); // only Buzzer Pin, control using BLE routines
 
 void setup()
 {
    if (!Serial) Serial.begin(115200);
    delay(2000); Serial.println("Serial initialized");
    if (BLEinit()) Serial.println("BLE initialized"); 
-   
+      game.init();
      //for random
      randomSeed(analogRead(A1));randomSeed(analogRead(A1));randomSeed(analogRead(A3));
-     game.init();
 }
 void loop()
 {
-     game.run(60); //run the on an interval of 60ms;
+     game.run(60); //run the Game on an interval of 60ms;
 }

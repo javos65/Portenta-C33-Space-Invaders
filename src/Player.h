@@ -23,18 +23,6 @@
 #include "Control.h"
 #include "Screen.h"
 
-// Defines
-
-#define BLACK     0x0000
-#define BLUE      0x001F
-#define RED       0xF800
-#define GREEN     0x07E0
-#define LIME	  0x2EFF
-#define CYAN      0x07FF
-#define DARK_CYAN 0x0DCB
-#define MAGENTA   0xF81F
-#define YELLOW    0xFFE0
-#define WHITE     0xFFFF
 
 namespace{}
 
@@ -53,15 +41,13 @@ private:
 	
 	bool alive;
   bool explode;
-	
+	int ships;
 	int score;
   Control* m_control;
-	
-    Waveshare_ILI9486 *tft; // TFT_ILI9163C *tft;
-	int VRx, VRy, SW;
+	Waveshare_ILI9486 *tft; // TFT_ILI9163C *tft;
 
 public:
-	Player(Waveshare_ILI9486 *tft, int VRx, int VRy, int SW, int B);
+	Player(Waveshare_ILI9486 *tft, int B, int Ships);
 	virtual ~Player();
 
 	int getScore();
