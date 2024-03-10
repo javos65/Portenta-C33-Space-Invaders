@@ -18,29 +18,30 @@
 #include "Game.h"
 #include <Adafruit_GFX.h>
 #include <Waveshare_ILI9486.h>
-#include "BLEconfig.h" // BLE routines
-//This Game Engine is supposed to help create games easily 
+#include "Control.h"
 
-//Defines for TFT
-//#define __CS 48
-//#define __DC 
+//This Game Engine based on object c++
 
 //Create a TFT object
-	Waveshare_ILI9486 tft; // change your setting for SPI interface in the library Waveshare_ILI9486.h  / .cpp
+Waveshare_ILI9486 tft; // change your setting for SPI interface in the library Waveshare_ILI9486.h  / .cpp
+
+//Create Controller object
+Control controller();
 
 //Create a Game object
-Game game(&tft, 6); // only Buzzer Pin, control using BLE routines
+Game game(&tft, 6); // only Buzzer Pin, control using BLE routines poitnerm and pass tft screen poointer
+
 
 void setup()
 {
    if (!Serial) Serial.begin(115200);
    delay(2000); Serial.println("Serial initialized");
-   if (BLEinit()) Serial.println("BLE initialized"); 
-      game.init();
-     //for random
-     randomSeed(analogRead(A1));randomSeed(analogRead(A1));randomSeed(analogRead(A3));
+   Serial.println("BLE initialized"); 
+   game.initgraphics_control(); 
+   Serial.println("Graphics initialized");
+   randomSeed(analogRead(A1));randomSeed(analogRead(A1));randomSeed(analogRead(A3)); //for random
 }
 void loop()
 {
-     game.run(60); //run the Game on an interval of 60ms;
+     game.run(50); //run the Game on an interval of 60ms;
 }

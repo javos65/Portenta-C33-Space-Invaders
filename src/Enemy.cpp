@@ -10,7 +10,9 @@
 * | IOriginal   :   Objecrtoriented setup : https://github.com/YXHYX/arduino-space-invaders
 *
 * Enemy Objects
-*
+* Controls automatic movement and animation
+* Controls bombing 
+* Sense Collision with laser bullets
 ******************************************************************************/
 #include "Enemy.h"
 #include "Screen.h"
@@ -19,91 +21,103 @@
 Enemy::Enemy(Waveshare_ILI9486 *tft, int x, int y, int B,int Ti) : m_tft(tft) {
 	m_x = x, m_y 	= y; 	//intialize position
   m_prevx=x, m_prevy=y;
-	m_bulletx = 0, m_bullety = 0;
+	m_bombx = 0, m_bomby = 0;
 	animationFrame 	= 0; 	//intialize frame of animation
-	alive 			= true;	//intialize life state
-  explode     = 0;
+	alive 			= true;	//intialize life state - callable by Level()
+  twilight    = false; // twilight stage, when hit, but still exploding or falling bombs
+  exploded    = false;
+  explodingA    = 0;
 	buzzer			= B;	//intialize the buzzer
-	timerb 			= random(650, 730);
+	timerb 			= random(350, 820);
   timerx 			= 0;
   timery 			= 0;
-  type        = Ti; // type of invader
+  type        = Ti; // type of invader 1 / 2 / 3
   shift       = 0; // shift
+  sidewinder  = 0 ;
   bombrate    = 1;
+  dropBomb = false;
 }
 //deconstructor
 Enemy::~Enemy(){
 	delete m_tft; //yeet that pointer
 }
 
-//check collisions idk
+//check collisions with laser
 bool Enemy::collide(int x1, int y1){
+  if(this->alive == true && this->twilight == false) { // only collide when alive, no collide in twilight
 	if(x1 > m_x-1             &&
 		 x1 < (m_x+ENEMYSX+1)   &&
 		y1 > m_y-4              &&
 		y1 <  (m_y+ENEMYSY+1)   ){
-		//collision detected
-		this->m_tft->drawLine(this->m_bulletx, this->m_bullety-8, this->m_bulletx, this->m_bullety+8, BLACK); // remove bullit
-    this->shootBullet = false; // remove bomb indication
+		//collision detected : Laser vs Enemy
 		tone(buzzer, 300, 130);
-    this-> explode = 1;
+    this-> explodingA = 1;     // mark start of explode animation
+    this-> twilight = true; // mark enemy lives in twilight: no more new bombing, finish active bomb
     return true;
-    //if (alive == true ) {this->explode = true; this->alive = false; return false;}
-    //else if (explode == true) {this->alive = false;return true;}
-	}
+	  } 
+  }
+
 	return false;
 }
 
-void Enemy::shoot()
+void Enemy::bomb()
 {
-	this->timerb += bombrate;
-	if( (this->timerb > 750) && (shootBullet == false) ){	//new bomb only when timer is up and no other bomb was falling
-		this->m_bulletx = this->m_x + random(0, ENEMYSX-2);
-		this->m_bullety = this->m_y+ENEMYSY-2;
-		this->shootBullet = true;
-		tone(buzzer, 1200, 50);
-		this->timerb = random(0,  725);
-	}
-	
-	if(this->shootBullet == true && this->alive == true) // if bullet was shooted, and enemy did not just die
+  if (this->alive == true && this->twilight == false) {    // start drop bombs only when alive and not in twilight
+	  this->timerb += bombrate + this->type;
+	  if( (this->timerb > 850) && (dropBomb == false) ){	//new bomb only when timer is up and no other bomb was falling
+		  this->m_bombx = this->m_x + random(0, ENEMYSX-2);   ;
+		  this->m_bomby = this->m_y+ENEMYSY-2;    
+      switch(this->type) {    
+        case 1 :  sidewinder = 0 ; break;
+        case 2 :  sidewinder = random(-2,2 ); break; // side winder bombs : moving also sidewards
+        case 3 :  sidewinder = random(-1,1); break; // side winder bombs : moving also sidewards
+        default : sidewinder = 0; break;
+      }
+		  this->dropBomb = true;
+		  tone(buzzer, 1200, 50);
+		  this->timerb = random(0,  725);
+	  }
+  }	
+
+	if(this->dropBomb == true ) // track fallen bomb
 	{
-		this->m_bullety += 4;
-		this->m_tft->drawLine(this->m_bulletx, this->m_bullety, this->m_bulletx, this->m_bullety-8, BLACK);
-    //this->m_tft->writeFastVLine(this->m_bulletx, this->m_bullety-8, 8, BLACK);    
-
-		if(this->m_bullety < BOMBEND-4)
-			this->m_tft->drawLine(this->m_bulletx, this->m_bullety+8, this->m_bulletx, this->m_bullety, GREEN);
-        // this->m_tft->writeFastVLine(this->m_bulletx, this->m_bullety, 8, GREEN);
-
-		if(this->m_bullety > BOMBEND){
-			this->m_bullety = this->m_y;
-			this->shootBullet = false;
+    this->m_tft->fillRect(this->m_bombx, this->m_bomby, BOMBX, BOMBY, BLACK); // emove old Bomb
+    this->m_bomby += BOMBSPEED; // update bomb positios, remember old
+    this->m_bombx += sidewinder; // update bomb positios, remember old
+    if (this->m_bombx < GAMEX+2 ||this->m_bombx > GAMEX+SCREENSX-2 ) sidewinder = -sidewinder;
+		if(this->m_bomby < BOMBEND-BOMBSPEED){
+        m_tft->drawColors((int16_t)m_bombx,(int16_t)m_bomby,(int16_t) BOMBX, (int16_t) BOMBY,(uint16_t *) Bomb);
+    }
+		else {
+      m_bombx = 0, m_bomby = 0;
+			this->dropBomb = false; 
 		}
 	}
 }
 
 void Enemy::update(){
+	randomSeed(m_x*(analogRead(0)/m_y) ); // generate random seeds
+	if(animationFrame == 5)	animationFrame = -1;
+	else animationFrame++;
 	
-	if(animationFrame == 5)
-		animationFrame = -1;
-	else
-		animationFrame++;
-	shoot();
-
-  this->timerx++; // timer for X-shift of enemy
-  this->timery++; // timer for Y-shift of enemy
-  if(this->timerx > ZIGZAGTICK){	
-      this->timerx =0;
-      this->m_prevx= this->m_x;;
-      if(shift==1) {this->m_x-=ENEMYSX;;shift=0;}
-      else {this->m_x+=ENEMYSX;;shift=1;}
-      }
-  else if( (this->timery > DOWNTICK ) && (m_y < BUNKERLIMIT) ){	// once bunker limit is reached, no more down
-      this->timery =0;
-      this->m_prevy= this->m_y;;
-      this->m_y+=ENEMYSY;
-      this->bombrate += 2; // increase bomb rate
-      }      
+  if ( (this->twilight == true) && (this->dropBomb == false) && (this->exploded==true) ) this->alive = false; // mark finaly DEATH !! : no more rendering, no more collision, no more bombing
+  else {
+    bomb();
+    this->timerx++; // timer for X-shift of enemy
+    this->timery++; // timer for Y-shift of enemy
+    if(this->timerx > ZIGZAGTICK){	
+       this->timerx =0;
+       this->m_prevx= this->m_x;;
+        if(shift==1) {this->m_x-=ENEMYSX;;shift=0;}
+       else {this->m_x+=ENEMYSX;;shift=1;}
+       }
+    else if( (this->timery > DOWNTICK ) && (m_y < BUNKERLIMIT) ){	// once bunker limit is reached, no more down
+       this->timery =0;
+       this->m_prevy= this->m_y;;
+       this->m_y+=ENEMYSY;
+        this->bombrate += 2; // increase bomb rate
+        }  
+    }    
 }
 
 void Enemy::render(){
@@ -114,22 +128,21 @@ void Enemy::render(){
       this->m_prevx = m_x;this->m_prevy = m_y; // then update to new position
       }
 
-if (explode) { 
+if (explodingA>0 && explodingA<4) { 
       m_tft->drawColors((int16_t)m_x,(int16_t)m_y,(int16_t) ENEMYSX, (int16_t) ENEMYSY,(uint16_t *) Iexplode); 
-      this->explode++; 
-      if (this->explode >3) 
-          {
-            m_tft->fillRect(m_x, m_y,ENEMYSX,ENEMYSY, BLACK);
-            this->alive = false; 
-          }
+      this->explodingA++; 
+      if (this->explodingA >= 4) {
+        m_tft->fillRect(m_x, m_y,ENEMYSX,ENEMYSY, BLACK);
+        this->exploded= true; // final explosion animation
+      }
   }
-else {
+else if(this->alive == true && this->twilight == false) { // only render when alive, but not in twilight
 			  if(animationFrame < 3 && animationFrame >= 0){
          switch(this->type) {
 				    case 1 : m_tft->drawColors((int16_t)m_x,(int16_t)m_y,(int16_t) ENEMYSX, (int16_t) ENEMYSY,(uint16_t *) invader1_1); ;break;
 				    case 2 : m_tft->drawColors((int16_t)m_x,(int16_t)m_y,(int16_t) ENEMYSX, (int16_t) ENEMYSY,(uint16_t *) invader2_1); ;break;
 				    case 3 : m_tft->drawColors((int16_t)m_x,(int16_t)m_y,(int16_t) ENEMYSX, (int16_t) ENEMYSY,(uint16_t *) invader3_1); ;break;
-            default : m_tft->drawColors((int16_t)m_x,(int16_t)m_y,(int16_t) ENEMYSX, (int16_t) ENEMYSY,(uint16_t *) invader1_1); ;break;   
+            default : m_tft->drawColors((int16_t)m_x,(int16_t)m_y,(int16_t) ENEMYSX, (int16_t) ENEMYSY,(uint16_t *) invader2_1); ;break;   
            }               
         }
 			  if(animationFrame < 6 && animationFrame >= 3){
@@ -147,6 +160,10 @@ bool Enemy::getAlive(){
 	return this->alive;
 }
 
+int Enemy::getType(){
+	return this->type;
+}
+
 int Enemy::getX(){
 	return this->m_x;
 }
@@ -156,9 +173,9 @@ int Enemy::getY(){
 }
 
 int Enemy::getBulletX(){
-	return this->m_bulletx;
+	return this->m_bombx;
 }
 
 int Enemy::getBulletY(){
-	return this->m_bullety;
+	return this->m_bomby;
 }

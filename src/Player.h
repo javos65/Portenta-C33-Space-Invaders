@@ -16,12 +16,10 @@
 #define PLAYER_H
 
 // Includes
-#include <SPI.h>
 #include <Adafruit_GFX.h>
-//#include <TFT_ILI9163C.h>
 #include <Waveshare_ILI9486.h>
 #include "Control.h"
-#include "Screen.h"
+//#include "Screen.h"
 
 
 namespace{}
@@ -36,6 +34,8 @@ private:
 	
 	int bulletx, bullety;
 	int bullet2x, bullet2y;
+	int exbulletx, exbullety;
+	int exbullet2x, exbullet2y;  
 	bool bulletShoot;
   bool bullet2Shoot;
 	
@@ -43,11 +43,11 @@ private:
   bool explode;
 	int ships;
 	int score;
-  Control* m_control;
+  Control* C;
 	Waveshare_ILI9486 *tft; // TFT_ILI9163C *tft;
 
 public:
-	Player(Waveshare_ILI9486 *tft, int B, int Ships);
+	Player(Waveshare_ILI9486 *tft, Control *C, int B);
 	virtual ~Player();
 
 	int getScore();
@@ -67,7 +67,7 @@ public:
 	
   void update();
   void render();
-	void initControl();
+	
 	
 };
 #endif  PLAYER_H

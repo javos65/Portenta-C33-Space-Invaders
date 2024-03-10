@@ -9,22 +9,26 @@
 * | IOriginal   :   Objecrtoriented setup : https://github.com/YXHYX/arduino-space-invaders
 *
 * Player object
-*
+* Initiates Plaey Laser
+* Movement control of Player Laser
+* Keeps track of shoot bullets
+* Sense collision with Enemy Bombs
 ******************************************************************************/
 
 #include "Player.h"
 #include "Screen.h"
 
 
-Player::Player(Waveshare_ILI9486 *tft, int B, int Ships) : tft(tft) {
+Player::Player(Waveshare_ILI9486 *tft, Control *C, int B) : tft(tft), C(C) {
 	this->x = PLAYERROWX , this->y = PLAYERROWY;
 	this->prevx = PLAYERROWX ,this->prevy=PLAYERROWY;
 	this->bulletx = 0, this->bullety = 0;
+  this->exbulletx = 0, this->exbullety = 0;
 	this->bulletShoot = false;
 
   this->bullet2x = 0, this->bullet2y = 0;
+  this->exbullet2x = 0, this->exbullet2y = 0;  
 	this->bullet2Shoot = false;
-  this->ships = Ships;
 	this->prevx = 0, this->prevy = 0;
 	this->score = 0;
 	this->buzzer = B;
@@ -34,67 +38,65 @@ Player::Player(Waveshare_ILI9486 *tft, int B, int Ships) : tft(tft) {
 }
 
 Player::~Player(){
-    delete tft;
-    delete m_control;
+    delete this->tft;
+    delete this->C;
 }
 
 void Player::shoot(){
 	
-	if(this->m_control->getCS()==1){
+	if(this->C->getCS()==1){
 		if(bulletShoot == false){
-			this->bulletx = this->x+4;
+			this->bulletx = this->x+PLAYERSX/2;
 			this->bullety = this->y;
+      exbulletx = bulletx; exbullety=bullety;
 			tone(this->buzzer, 1000, 100);
 			this->bulletShoot = true;
 		  }
 		else if(bullet2Shoot == false && bullety < (GAMEY+SCREENSY/2) ){ // second shot ! - yeah - only when first shot is half way
-			this->bullet2x = this->x+4;
+			this->bullet2x = this->x+PLAYERSX/2;
 			this->bullet2y = this->y;
+      exbullet2x = bullet2x; exbullet2y=bullet2y;
 			tone(this->buzzer, 1000, 100);
 			this->bullet2Shoot = true;
 		  }      
 	  }
 
 	if(bulletShoot == true){ // first bullet
-		bullety -= 8;	
-		this->tft->drawLine(this->bulletx, this->bullety, this->bulletx, this->bullety-8, YELLOW);
-		this->tft->drawLine(this->bulletx, this->bullety, this->bulletx, this->bullety+8, BLACK);
-		if(bullety < SKYLIMIT)
+    this->tft->fillRect(this->bulletx, this->bullety, RAYX, RAYY, BLACK); // emove old ray
+		exbulletx = bulletx; exbullety=bullety; bullety-=8;		
+    if(bullety >= SKYLIMIT)
+            this->tft->drawColors((int16_t)bulletx,(int16_t)bullety,(int16_t) RAYX, (int16_t) RAYY,(uint16_t *) Ray);
+		else
 		{
-			this->tft->drawLine(this->bulletx, this->bullety, this->bulletx, this->bullety-8, BLACK);
 			bulletShoot = false;
 		}
 	}
 
-	if(bullet2Shoot == true){ // second bullet
-		bullet2y -= 8;	
-		this->tft->drawLine(this->bullet2x, this->bullet2y, this->bullet2x, this->bullet2y-8, YELLOW);
-		this->tft->drawLine(this->bullet2x, this->bullet2y, this->bullet2x, this->bullet2y+8, BLACK);
-		if(bullet2y < SKYLIMIT)
+	if(bullet2Shoot == true){ // secondbullet
+    this->tft->fillRect(this->bullet2x, this->bullet2y, RAYX, RAYY, BLACK); // emove old ray
+		exbullet2x = bullet2x; exbullet2y=bullet2y; bullet2y -= 8;	
+    if(bullet2y >= SKYLIMIT)
+      this->tft->drawColors((int16_t)bullet2x,(int16_t)bullet2y,(int16_t) RAYX, (int16_t) RAYY,(uint16_t *) Ray);
+		else
 		{
-			this->tft->drawLine(this->bullet2x, this->bullet2y, this->bullet2x, this->bullet2y-8, BLACK);
 			bullet2Shoot = false;
 		}
 	}
 
 }
 
-void Player ::initControl()
-{
-	m_control = new Control();
-  this->m_control->init();
-}
+
 
 void Player::stopShoot()
 {
-	this->tft->drawLine(this->bulletx, this->bullety, this->bulletx, this->bullety-8, BLACK);
+  this->tft->fillRect(this->bulletx, this->bullety, RAYX, RAYY, BLACK); // emove old ray
   this->bulletx=this->x;this->bullety=this->y;
 	bulletShoot = false;
 }
 
 void Player::stopShoot2()
 {
-	this->tft->drawLine(this->bullet2x, this->bullet2y, this->bullet2x, this->bullet2y-8, BLACK);
+  this->tft->fillRect(this->bullet2x, this->bullet2y, RAYX, RAYY, BLACK); // emove old ray
 	this->bullet2x=this->x;this->bullet2y=this->y;
   bullet2Shoot = false;
 }
@@ -110,8 +112,8 @@ void Player::addPoints(int points){
 bool Player::collide(int x1, int y1){
 	
 	if( x1 < (x + PLAYERSX-1)  &&
-		  x1 > x+1               &&
-		  y1 < (y + PLAYERSY)  &&
+		  x1 > x-1               &&
+		  y1 < (y + PLAYERSY+2)  &&
 		  y1 > (y +PLAYERSY/2)  )
 	{
 		tone(buzzer, 200, 150);
@@ -134,17 +136,17 @@ bool Player::collide(int x1, int y1){
 }
 
 void Player::update(){
-  this->m_control->getKeys(); // update controller keys
+  this->C->getKeys(); // update controller keys
   this->shoot();
 	this->prevx = x;
 	this->prevy = y;
-	if(this->m_control->getCX()==1)
+	if(this->C->getCX()==1)
 		x += 4;
-	else if(this->m_control->getCX()==-1)
+	else if(this->C->getCX()==-1)
 		x -= 4;
-	if(this->m_control->getCY()==-1)
+	if(this->C->getCY()==-1)
 		y += 4;
-	else if(this->m_control->getCY()==1)
+	else if(this->C->getCY()==1)
 		y -= 4;
 	if(x > PLAYERENDX2)
 		x = PLAYERENDX2;

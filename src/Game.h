@@ -16,7 +16,10 @@
 #define GAME_H
 
 // Includes
+//#include <Waveshare_ILI9486.h>
+#include "Control.h"
 #include "Level.h"
+#include "Control.h"
 
 // Defines
 #define null 0
@@ -25,8 +28,6 @@ namespace{ }
 
 class Game
 {
-public:
-
 
 private:
 
@@ -34,22 +35,21 @@ private:
 	int m_score;
 	int m_levelScore;
 	int m_highScore;
+  int m_highLevel;
+  
 	bool m_gameOver;
 	int m_difficulty;
   int m_ships;
 	Level* m_level;
   uint32_t m_retimer;
-	int VRx;
-	int VRy;
-	int SW;
 	int B;
 	//time variables
 	long m_currentMillis;
 	long m_previousMillis;
-
+  Control *m_C;
 	Waveshare_ILI9486 *m_tft;
 public:
-    Game(Waveshare_ILI9486 *tft, int B);
+    Game(Waveshare_ILI9486 *tft,  int B);
     virtual ~Game();
 	
 	
@@ -59,10 +59,12 @@ public:
   void gameOver();
 	
 	void run(int interval);
-    void render();
-    void update();
+  void render();
+  void update();
 
-	void init();
+  void newgame();
+  void randomize();
+	void initgraphics_control();
   void firstscreen();
 
 };

@@ -46,7 +46,7 @@ uint16_t BLEgetKey(){
       digitalWrite(LEDB, LOW);digitalWrite(LEDG, HIGH);BLE_Connected =true;
       if ( invadersCharacteristic.written() ) {
           c = invadersCharacteristic.value();          // read ble scancode 16 bit 0xffxx = pressed, 0x00xx = depressed
-          Serial.print("["); Serial.print(c,HEX);Serial.println("]");
+          //Serial.print("["); Serial.print(c,HEX);Serial.println("]");
           }   
       }  
     else{
@@ -59,5 +59,8 @@ return c;
 
 bool BLECheck()
 {
+  BLEcentral = BLE.central();
+  if (BLEcentral) {BLE_Connected=true;digitalWrite(LEDB, LOW);}
+  else  {BLE_Connected=false;digitalWrite(LEDB, HIGH);}
   return BLE_Connected;
 }

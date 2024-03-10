@@ -24,8 +24,7 @@
 
 
 // Defines
-
-
+#define BOMBSPEED 4
 
 namespace{ }
 
@@ -35,8 +34,8 @@ class Enemy
 private:
 	int m_x, m_y; //position of enemy
 	int m_prevx, m_prevy; //previous posiotion of enemy
-	int m_bulletx, m_bullety;
-	bool shootBullet;
+	int m_bombx, m_bomby;
+	bool dropBomb;
 	int type;
 	int timerb;
   int timerx;
@@ -44,9 +43,11 @@ private:
 	int buzzer; // for buzzer
 	int shift;
   int bombrate;
-	bool alive; //life state of enemy
-  int explode;
-	
+  int sidewinder;
+	bool alive;       // life state of enemy -> alive stops wafter  enemy till exploded and bombs ended
+  bool twilight;    // twilight state of enemy, hit but last bomb falling, but cant be hit again
+  bool exploded;    // exploding state 
+  int  explodingA;  // explode animation counter
 	int animationFrame; //animation frame of enemy
 	
 	Waveshare_ILI9486 *m_tft; // a pointer to the display
@@ -62,13 +63,12 @@ public:
 	int getY();
 	int getBulletX();
 	int getBulletY();
-	
+	int getType();
+
 	bool collide(int x1, int y1);
-	
-	
+		
 	//functions
-	void shoot();
-	void stopShoot();
+	void bomb();
 	void update();
 	void render();
 };

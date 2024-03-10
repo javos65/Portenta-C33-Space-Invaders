@@ -6,3 +6,4 @@ render		KEYWORD2
 
 Player      	KEYWORD1
 Enemy		KEYWORD1
+Control		KEYWORD1

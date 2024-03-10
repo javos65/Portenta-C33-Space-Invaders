@@ -15,6 +15,9 @@
 #ifndef LEVEL_H
 #define LEVEL_H
 
+#include <Adafruit_GFX.h>
+#include <Waveshare_ILI9486.h>
+#include "Control.h".
 #include "Player.h"
 #include "Enemy.h"
 
@@ -32,14 +35,15 @@ private:
 	bool playerAlive;
 	
 	Player* m_player;
-	Enemy* m_enemyArray[15];
+	Enemy* m_enemyArray[MAXENEMY*5];
+  Control* C;
 	Waveshare_ILI9486 *m_tft;
 	
 	//Getters
-	bool enemiesDead();
+	int enemiesDead();
 	
 public:
-	Level(int difficulty, Waveshare_ILI9486 *tft, int B, int Ships);
+	Level(int difficulty, Waveshare_ILI9486 *tft, Control *C,int B);
 	virtual ~Level();
 	
 	//Getters
@@ -51,8 +55,8 @@ public:
 	void setDifficulty(int difficulty);
 
 	//Initializers
-	void init(int difficulty, Waveshare_ILI9486 *tft, int B, int Ships);
-	void initPlayer(Waveshare_ILI9486 *tft, int B , int Ships);
+	void init(int difficulty, Waveshare_ILI9486 *tft, Control *C, int B);
+	void initPlayer(Waveshare_ILI9486 *tft, Control *C,int B);
 	void initEnemies(int amount, Waveshare_ILI9486 *m_tft, int B, int Orbit);
 	
 	//functions

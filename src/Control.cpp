@@ -12,9 +12,10 @@
 *
 ******************************************************************************/
 #include "Control.h"
+#include "Screen.h"
 #include "BLEconfig.h"
 
-Control::Control()
+Control::Control(Waveshare_ILI9486 *tft) : m_tft(tft)
   {
 	this->pressed_x = 0, this->pressed_y = 0, this->pressed_s = 0;
 	this->prevx = 0, this->prevy = 0, this->prevs = 0;
@@ -27,7 +28,8 @@ Control::~Control(){
 
 void Control::getKeys(){
 	     
-       uint16_t c=0x0000;
+  uint16_t c=0x0000;
+  if(this->BLEconnected){
        c = BLEgetKey();          // read ble scancode 16 bit 0xffxx = pressed, 0x00xx = depressed
           switch(c) {
               case 0xffae : {this->prevx = this->pressed_x;this->pressed_x = 1;break;} // right arrow pressed
@@ -43,14 +45,30 @@ void Control::getKeys(){
               case 0x00a3 : {this->prevs = this->pressed_s;this->pressed_s = 0;break;} // dowb arrow pressed         
               default : {;}
 	            }
+  }
+  else{ // if no BLE, access stouch screen
+            this->touch = this->m_tft->getPoint();this->m_tft->normalizeTsPoint(touch);
+            if ( (touch.z>200) && (touch.y>LCDHEIGHT/2) ) // only touch lower part
+                {
+                this->pressed_x = 0;this->pressed_s=0;
+                if (touch.x < (LCDWIDTH/3) ){this->pressed_x = -1;this->pressed_s=0;}
+                else if (touch.x > (2*LCDWIDTH/3) ){this->pressed_x = 1;this->pressed_s=0;}
+                    else {this->pressed_x = 0;this->pressed_s=1;}
+                }
+             //else {this->pressed_x = 0;this->pressed_s=0;}
+
 }
 
+}
 void Control::init(){	 
+BLEinit();
+}
+
+void Control::clearKeys(){	 
 	this->pressed_x = 0, this->pressed_y = 0, this->pressed_s = 0;
 	this->prevx = 0, this->prevy = 0, this->prevs = 0;
   this->keyvalue = 0;
 }
-
 
 int Control::getCX(){
 	return this->pressed_x;

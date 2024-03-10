@@ -15,6 +15,8 @@
 #ifndef CONTROL_H
 #define CONTROL_H
 
+#include <Adafruit_GFX.h>
+#include <Waveshare_ILI9486.h>
 
 class Control
 {
@@ -23,13 +25,15 @@ private:
 	int prevx,prevy,prevs; //used to clear (better than fillScreen()!!)
   char keyvalue;
   int BLEconnected,BLEactive ;
-
+  Waveshare_ILI9486 *m_tft;
+  TSPoint touch;
 public:
-	Control();
+	Control(Waveshare_ILI9486 *tft);
 	virtual ~Control();
 
  void init();
  void getKeys();
+ void clearKeys();
 	int getCX();
 	int getCY();
 	int getCS();

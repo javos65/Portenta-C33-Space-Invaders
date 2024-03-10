@@ -5,10 +5,9 @@ ____
 
 ## About
 
-This is a gameplay fir Saoce Invaders with control interface by adding ***BLE remote control***
+This is a gameplay for Spoce Invaders with control interface by adding ***BLE remote control***
 
 [Original Object based Github page](https://github.com/YXHYX/arduino-space-invaders)
-
 
 This mod was made by using Portenta C33 and HAT expansion board.
 
@@ -24,12 +23,16 @@ ___
 
 ### Features:
 BLE remote controll - see Andriod based App
+Thouch Screen Controll.
+Storing HighScores on C33 File system
 
 ___
 
 ## To do:
 + adding sound / music
-+ adding touch control
++ adding more statistics
++ adding highscore store -> DONE
++ adding touch control - > DONE
 + adding better graphics - its a Renesas Demo now
 ___
 
