@@ -22,7 +22,7 @@ Connect C33 to HAT expansion board, add SPI based LCD to SPI1 port
 ___
 
 ### Features:
-BLE remote controll - see Andriod based App
+BLE remote controll - see Andriod based App -> link[https://github.com/javos65/Portenta-C33-Space-Invaders/blob/main/Android%20App/App_android/InvadersX.apk]
 Thouch Screen Controll.
 Storing HighScores on C33 File system
 
