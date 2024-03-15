@@ -4,7 +4,7 @@
 * | Info        : JV 2024
 * | Github      : https://github.com/javos65/Portenta-C33-Space-Invaders
 *----------------
-* |	This version:   V1.0
+* |	This version:   V2.0
 * | Date        :   2024-03-16
 * | IOriginal   :   Objecrt oriented setup : https://github.com/YXHYX/arduino-space-invaders
 *
@@ -43,6 +43,7 @@ private:
   bool explode;
 	int ships;
 	int score;
+  int kills;
   Control* C;
 	Waveshare_ILI9486 *tft; // TFT_ILI9163C *tft;
 
@@ -51,6 +52,7 @@ public:
 	virtual ~Player();
 
 	int getScore();
+  int getKills();
 	
 	int getBX();
 	int getBY();
@@ -63,7 +65,8 @@ public:
 	void shoot();
 	void stopShoot();
   void stopShoot2();
-	void addPoints(int points = 10);
+	void addPoints(int points);
+  void addKill();
 	
   void update();
   void render();

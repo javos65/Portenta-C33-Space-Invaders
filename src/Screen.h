@@ -4,7 +4,7 @@
 * | Info        : JV 2024
 * | Github      : https://github.com/javos65/Portenta-C33-Space-Invaders
 *----------------
-* |	This version:   V1.0
+* |	This version:   V2.0
 * | Date        :   2024-03-16
 * | IOriginal   :   Objecrtoriented setup : https://github.com/YXHYX/arduino-space-invaders
 *
@@ -50,21 +50,24 @@
 #define LOGOHEIGHT 55
 
 // enemy 
-#define ENEMYSX  22
-#define ENEMYSY   14
-#define ENEMYROWX (GAMEX + 4 )       // leave one 2* size on the side
+#define BOMBSPEED 2
+#define ENEMYSX  28
+#define ENEMYSY   20
+#define ENEMYROWX (GAMEX )       // leave one 2* size on the side
 #define ENEMYROWY (GAMEY)         // leave one 2* size on the side
 #define BOMBEND    (GAMEY + SCREENSY -1)         // the bottom
-#define MAXENEMY   ( SCREENSX/(GAMESCALE*ENEMYSX*2))  // Max Enemy per row
-#define BUNKERLIMIT (BOMBEND - ENEMYSY*4)      // the dow limit for invaders
+#define MAXENEMY   ( SCREENSX/(GAMESCALE*ENEMYSX*3/2))  // Max Enemy per row
+#define BUNKERLIMIT (BOMBEND - ENEMYSY*5)      // the dow limit for invaders
 
-#define ZIGZAGTICK  30    // time tick between zig zag
-#define DOWNTICK    250   // time tich between lower orbit
+#define ZIGZAGTICK  13    // ticktime tick between zig zag        ! prime
+#define DOWNTICK    199   // tick time tich between lower orbit   ! prime
+#define ATTACKRATE  257   // tick time for next attack            ! prime
 
 // Player
+#define LASERSPEED 5
 #define SKYLIMIT  GAMEY              // the SKY
-#define PLAYERSX    24
-#define PLAYERSY    24
+#define PLAYERSX    20
+#define PLAYERSY    28
 #define PLAYERROWX  (GAMEX+ SCREENSX/2)
 #define PLAYERROWY  BOMBEND-PLAYERSY 
 #define PLAYERENDX1 (GAMEX)
@@ -95,6 +98,8 @@ extern  const uint16_t GameOver[LOGOHEIGHT][LOGOWIDTH];
 extern const int16_t LevelOver[LOGOHEIGHT][LOGOWIDTH]  ;
 extern  const uint16_t EBVlogo[LOGOHEIGHT][LOGOWIDTH];
 extern  const uint16_t RENlogo[LOGOHEIGHT][LOGOWIDTH];
+extern  const uint16_t invader4_2[ENEMYSY][ENEMYSX];
+extern  const uint16_t invader4_1[ENEMYSY][ENEMYSX];
 extern  const uint16_t invader3_2[ENEMYSY][ENEMYSX];
 extern  const uint16_t invader3_1[ENEMYSY][ENEMYSX];
 extern  const uint16_t invader2_2[ENEMYSY][ENEMYSX];
@@ -107,6 +112,7 @@ extern const uint16_t Renesas2[LOGOHEIGHT][LOGOWIDTH] ;
 extern const uint16_t BLE_on[ICONHEIGHT][ICONWIDTH];
 extern const uint16_t BLE_off[ICONHEIGHT][ICONWIDTH];
 extern const uint16_t Splash[LCDHEIGHT][LCDWIDTH]; 
+extern const uint16_t SplashQR[LCDHEIGHT][LCDWIDTH]; 
 extern const int16_t shipcount[MINIY][MINIX];
 extern const uint16_t SpaveInvaders[SPAVEINVADERSY][SPAVEINVADERSX] ;
 

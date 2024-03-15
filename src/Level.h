@@ -4,11 +4,11 @@
 * | Info        : JV 2024
 * | Github      : https://github.com/javos65/Portenta-C33-Space-Invaders
 *----------------
-* |	This version:   V1.0
+* |	This version:   V2.0
 * | Date        :   2024-03-16
 * | IOriginal   :   Objecrtoriented setup : https://github.com/YXHYX/arduino-space-invaders
 *
-* LEvel Configs
+* Level Configs
 *
 ******************************************************************************/
 
@@ -30,12 +30,13 @@ private:
 	int m_difficulty;
 	int B;
 	int enemyAmount;
+  int aTimer;
 	
 	bool levelCompleted;
 	bool playerAlive;
 	
 	Player* m_player;
-	Enemy* m_enemyArray[MAXENEMY*5];
+	Enemy* m_enemyArray[MAXENEMY*4];
   Control* C;
 	Waveshare_ILI9486 *m_tft;
 	
@@ -48,6 +49,7 @@ public:
 	
 	//Getters
 	int getScore();
+  int getKills();
 	bool getLevelCompleted();
 	bool getPlayerAlive();
 	int getDifficulty();

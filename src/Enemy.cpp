@@ -5,7 +5,7 @@
 * | Info        : JV 2024
 * | Github      : https://github.com/javos65/Portenta-C33-Space-Invaders
 *----------------
-* |	This version:   V1.0
+* |	This version:   V2.0
 * | Date        :   2024-03-16
 * | IOriginal   :   Objecrtoriented setup : https://github.com/YXHYX/arduino-space-invaders
 *
@@ -28,14 +28,16 @@ Enemy::Enemy(Waveshare_ILI9486 *tft, int x, int y, int B,int Ti) : m_tft(tft) {
   exploded    = false;
   explodingA    = 0;
 	buzzer			= B;	//intialize the buzzer
-	timerb 			= random(350, 820);
+	timerb 			= random(550, 920);
   timerx 			= 0;
   timery 			= 0;
   type        = Ti; // type of invader 1 / 2 / 3
   shift       = 0; // shift
   sidewinder  = 0 ;
   bombrate    = 1;
-  dropBomb = false;
+  dropBomb    = false;
+  attack      = false;
+  xdirection  = 1;
 }
 //deconstructor
 Enemy::~Enemy(){
@@ -60,11 +62,11 @@ bool Enemy::collide(int x1, int y1){
 	return false;
 }
 
-void Enemy::bomb()
+void Enemy::bomb(bool now, int speed)
 {
   if (this->alive == true && this->twilight == false) {    // start drop bombs only when alive and not in twilight
-	  this->timerb += bombrate + this->type;
-	  if( (this->timerb > 850) && (dropBomb == false) ){	//new bomb only when timer is up and no other bomb was falling
+	  this->timerb += bombrate + this->type; if (now == true) this->timerb += 1000; 
+	  if( (this->timerb > 1000) && (dropBomb == false) ){	//new bomb only when timer is up and no other bomb was falling
 		  this->m_bombx = this->m_x + random(0, ENEMYSX-2);   ;
 		  this->m_bomby = this->m_y+ENEMYSY-2;    
       switch(this->type) {    
@@ -82,7 +84,7 @@ void Enemy::bomb()
 	if(this->dropBomb == true ) // track fallen bomb
 	{
     this->m_tft->fillRect(this->m_bombx, this->m_bomby, BOMBX, BOMBY, BLACK); // emove old Bomb
-    this->m_bomby += BOMBSPEED; // update bomb positios, remember old
+    this->m_bomby += BOMBSPEED + speed ; // update bomb positios, remember old
     this->m_bombx += sidewinder; // update bomb positios, remember old
     if (this->m_bombx < GAMEX+2 ||this->m_bombx > GAMEX+SCREENSX-2 ) sidewinder = -sidewinder;
 		if(this->m_bomby < BOMBEND-BOMBSPEED){
@@ -101,23 +103,36 @@ void Enemy::update(){
 	else animationFrame++;
 	
   if ( (this->twilight == true) && (this->dropBomb == false) && (this->exploded==true) ) this->alive = false; // mark finaly DEATH !! : no more rendering, no more collision, no more bombing
-  else {
-    bomb();
+  else if ( !this->attack) {// normal behaviour
+    bomb(false,1);
     this->timerx++; // timer for X-shift of enemy
     this->timery++; // timer for Y-shift of enemy
     if(this->timerx > ZIGZAGTICK){	
-       this->timerx =0;
-       this->m_prevx= this->m_x;;
-        if(shift==1) {this->m_x-=ENEMYSX;;shift=0;}
-       else {this->m_x+=ENEMYSX;;shift=1;}
-       }
-    else if( (this->timery > DOWNTICK ) && (m_y < BUNKERLIMIT) ){	// once bunker limit is reached, no more down
-       this->timery =0;
-       this->m_prevy= this->m_y;;
-       this->m_y+=ENEMYSY;
-        this->bombrate += 2; // increase bomb rate
-        }  
-    }    
+          this->timerx =0;
+          this->m_prevy= this->m_y;this->m_prevx= this->m_x;;
+          switch(shift) {                 // ZigZag in 4 steps
+            case 0 : {this->m_x+=ENEMYSX/2;shift=1;break;}
+            case 1 : {this->m_x+=ENEMYSX/2;shift=2;break;}
+            case 2 : {this->m_x-=ENEMYSX/2;shift=3;break;}
+            case 3 : {this->m_x-=ENEMYSX/2;shift=0;break;}
+          default : {shift=0;break;}
+          }
+      }
+      else if( (this->timery > DOWNTICK ) && (m_y < BUNKERLIMIT) ){	// once bunker limit is reached, no more down
+          this->timery =0;
+          this->m_prevy= this->m_y;this->m_prevx= this->m_x;;
+          this->m_y+=ENEMYSY;
+            this->bombrate += 2; // increase bomb rate
+            }  
+    }           // end if not attacking
+  else {        // attacking : bomb always, increase bomb speed
+        bomb(true, 3);
+        this->m_prevy= this->m_y;this->m_prevx= this->m_x;;
+        if ( (this->m_y < BOMBEND-3*ENEMYSY) ) {  this->m_y+=BOMBSPEED/2; } // mov down
+        if ( (this->m_x <= GAMEX)  ) {this->m_x = GAMEX ; xdirection = -xdirection;}  
+        if ( (this->m_x > (GAMEX+SCREENSX-ENEMYSX)) ) {this->m_x=GAMEX+SCREENSX-ENEMYSX ;xdirection = -xdirection;}
+        this->m_x+= (BOMBSPEED*xdirection); 
+      }       // end attacking    
 }
 
 void Enemy::render(){
@@ -125,15 +140,18 @@ void Enemy::render(){
 
   if( (m_prevx != m_x)  || (m_prevy != m_y)){     // Clear old enemy, on old place if there was a change
       m_tft->fillRect(m_prevx, m_prevy,ENEMYSX,ENEMYSY, BLACK);
-      this->m_prevx = m_x;this->m_prevy = m_y; // then update to new position
+      this->m_prevy= this->m_y;this->m_prevx= this->m_x;;
       }
 
-if (explodingA>0 && explodingA<4) { 
+if (explodingA>0 ) { 
+      if (this->explodingA > 4) {
+        m_tft->fillRect(m_x, m_y,ENEMYSX,ENEMYSY, BLACK);
+        this->exploded = true; // final explosion animation
+        this->explodingA++; 
+      }
+      else {
       m_tft->drawColors((int16_t)m_x,(int16_t)m_y,(int16_t) ENEMYSX, (int16_t) ENEMYSY,(uint16_t *) Iexplode); 
       this->explodingA++; 
-      if (this->explodingA >= 4) {
-        m_tft->fillRect(m_x, m_y,ENEMYSX,ENEMYSY, BLACK);
-        this->exploded= true; // final explosion animation
       }
   }
 else if(this->alive == true && this->twilight == false) { // only render when alive, but not in twilight
@@ -142,6 +160,7 @@ else if(this->alive == true && this->twilight == false) { // only render when al
 				    case 1 : m_tft->drawColors((int16_t)m_x,(int16_t)m_y,(int16_t) ENEMYSX, (int16_t) ENEMYSY,(uint16_t *) invader1_1); ;break;
 				    case 2 : m_tft->drawColors((int16_t)m_x,(int16_t)m_y,(int16_t) ENEMYSX, (int16_t) ENEMYSY,(uint16_t *) invader2_1); ;break;
 				    case 3 : m_tft->drawColors((int16_t)m_x,(int16_t)m_y,(int16_t) ENEMYSX, (int16_t) ENEMYSY,(uint16_t *) invader3_1); ;break;
+            case 4 : m_tft->drawColors((int16_t)m_x,(int16_t)m_y,(int16_t) ENEMYSX, (int16_t) ENEMYSY,(uint16_t *) invader4_1); ;break;
             default : m_tft->drawColors((int16_t)m_x,(int16_t)m_y,(int16_t) ENEMYSX, (int16_t) ENEMYSY,(uint16_t *) invader2_1); ;break;   
            }               
         }
@@ -150,6 +169,7 @@ else if(this->alive == true && this->twilight == false) { // only render when al
 				    case 1 : m_tft->drawColors((int16_t)m_x,(int16_t)m_y,(int16_t) ENEMYSX, (int16_t) ENEMYSY,(uint16_t *) invader1_2); ;break;
 				    case 2 : m_tft->drawColors((int16_t)m_x,(int16_t)m_y,(int16_t) ENEMYSX, (int16_t) ENEMYSY,(uint16_t *) invader2_2); ;break;
 				    case 3 : m_tft->drawColors((int16_t)m_x,(int16_t)m_y,(int16_t) ENEMYSX, (int16_t) ENEMYSY,(uint16_t *) invader3_2); ;break;
+				    case 4 : m_tft->drawColors((int16_t)m_x,(int16_t)m_y,(int16_t) ENEMYSX, (int16_t) ENEMYSY,(uint16_t *) invader4_2); ;break;            
             default : m_tft->drawColors((int16_t)m_x,(int16_t)m_y,(int16_t) ENEMYSX, (int16_t) ENEMYSY,(uint16_t *) invader1_2); ;break;
             }  
 			  }
@@ -178,4 +198,13 @@ int Enemy::getBulletX(){
 
 int Enemy::getBulletY(){
 	return this->m_bomby;
+}
+
+void Enemy::setAttack(){
+	this->attack = true;
+  this->type =4 ; // red attacker
+}
+
+bool Enemy::getAttack(){
+	return(this->attack);
 }

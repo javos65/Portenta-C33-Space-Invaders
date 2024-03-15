@@ -3,7 +3,7 @@
 * | Function    :	debug with Serial printf and printfln
 * | Info        : JV 2023
 *----------------
-* |	This version:   V1.0
+* |	This version:   V2.0
 * | Date        :   2023-01-16
 * | Info        :   Basic version
 *

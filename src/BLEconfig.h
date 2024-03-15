@@ -4,7 +4,7 @@
 * | Info        : JV 2024
 * | Github      : https://github.com/javos65/Portenta-C33-Space-Invaders
 *----------------
-* |	This version:   V1.0
+* |	This version:   V2.0
 * | Date        :   2024-03-16
 * | IOriginal   :   Objecrtoriented setup : https://github.com/YXHYX/arduino-space-invaders
 *

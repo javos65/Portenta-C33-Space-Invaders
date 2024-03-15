@@ -16,9 +16,9 @@
 *
 ******************************************************************************/
 #include "Game.h"
-#include <Adafruit_GFX.h>
-#include <Waveshare_ILI9486.h>
-#include "Control.h"
+#include <Adafruit_GFX.h>      // Graph functions for text, lines, etc
+#include <Waveshare_ILI9486.h> // serial SPI driven Display
+#include "Control.h"           // key cotnrol interface by touch or BLE
 
 //This Game Engine based on object c++
 
@@ -39,9 +39,9 @@ void setup()
    Serial.println("BLE initialized"); 
    game.initgraphics_control(); 
    Serial.println("Graphics initialized");
-   randomSeed(analogRead(A1));randomSeed(analogRead(A1));randomSeed(analogRead(A3)); //for random
+   randomSeed(analogRead(A3));randomSeed(analogRead(A4));randomSeed(analogRead(A3)); //for random ??
 }
 void loop()
 {
-     game.run(50); //run the Game on an interval of 60ms;
+     game.run(30); //run the Game on an interval of 30ms;
 }

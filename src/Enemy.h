@@ -5,7 +5,7 @@
 * | Info        : JV 2024
 * | Github      : https://github.com/javos65/Portenta-C33-Space-Invaders
 *----------------
-* |	This version:   V1.0
+* |	This version:   V2.0
 * | Date        :   2024-03-16
 * | IOriginal   :   Objecrtoriented setup : https://github.com/YXHYX/arduino-space-invaders
 *
@@ -24,7 +24,6 @@
 
 
 // Defines
-#define BOMBSPEED 4
 
 namespace{ }
 
@@ -44,9 +43,11 @@ private:
 	int shift;
   int bombrate;
   int sidewinder;
+  int xdirection;
 	bool alive;       // life state of enemy -> alive stops wafter  enemy till exploded and bombs ended
   bool twilight;    // twilight state of enemy, hit but last bomb falling, but cant be hit again
   bool exploded;    // exploding state 
+  bool attack;
   int  explodingA;  // explode animation counter
 	int animationFrame; //animation frame of enemy
 	
@@ -64,11 +65,16 @@ public:
 	int getBulletX();
 	int getBulletY();
 	int getType();
+  bool getAttack();
 
+ // Setters
+  void setAttack();
+
+ // Checkers
 	bool collide(int x1, int y1);
 		
 	//functions
-	void bomb();
+	void bomb(bool now, int speed);
 	void update();
 	void render();
 };

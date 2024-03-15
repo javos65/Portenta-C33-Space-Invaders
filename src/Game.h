@@ -4,7 +4,7 @@
 * | Info        : JV 2024
 * | Github      : https://github.com/javos65/Portenta-C33-Space-Invaders
 *----------------
-* |	This version:   V1.0
+* |	This version:   V2.0
 * | Date        :   2024-03-16
 * | IOriginal   :   Objecrtoriented setup : https://github.com/YXHYX/arduino-space-invaders
 *
@@ -33,9 +33,12 @@ private:
 
 	//Game variables
 	int m_score;
+  int m_kills;
 	int m_levelScore;
+  int m_levelKills;
 	int m_highScore;
   int m_highLevel;
+  int m_highKills;
   
 	bool m_gameOver;
 	int m_difficulty;
@@ -46,6 +49,7 @@ private:
 	//time variables
 	long m_currentMillis;
 	long m_previousMillis;
+  long m_gameMillis;
   Control *m_C;
 	Waveshare_ILI9486 *m_tft;
 public:
@@ -63,6 +67,7 @@ public:
   void update();
 
   void newgame();
+  void handle_highscore();
   void randomize();
 	void initgraphics_control();
   void firstscreen();

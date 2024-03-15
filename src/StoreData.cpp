@@ -3,9 +3,11 @@
 * | Function    :	Storing data on QSPI for C33 on LittleFileSystem
 * | Info        : JV 2024
 *----------------
-* |	This version:   V1.0
+* |	This version:   V2.0
 * | Date        :   2024-01-16
 * | Info        :   Basic version
+*
+* Game data store / read functions based on LittleFile system in QSPI
 *
 ******************************************************************************/
 #include "Debug.h"
@@ -158,16 +160,20 @@ uint8_t Save_Data(struct EEData *O)
   else Debugln(" *! File not open for writing");
  }
 
- void Read_Highscore(int* HS, int * HL)
+
+/************ Callable functions from Game  *********************/
+
+
+ void Read_Highscore(int* HS, int * HL, long *T, int *K)
  {
  Mount_Qspi();
  Read_Data(&IV_Object);
- *HS=IV_Object.highscore;*HL=IV_Object.highlevel;
+ *HS=IV_Object.highscore;*HL=IV_Object.highlevel;*T=IV_Object.time;*K=IV_Object.counter;
  }
 
-  void Write_Highscore(int HS, int HL)
+  void Write_Highscore(int HS, int HL, long T, int K)
  {
  Mount_Qspi();
- IV_Object.highscore=HS;IV_Object.highlevel=HL;
+ IV_Object.highscore=HS;IV_Object.highlevel=HL;IV_Object.time=T;IV_Object.counter=K;
  Save_Data(&IV_Object);
  }

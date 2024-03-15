@@ -4,9 +4,11 @@
 * | Function    :	Storing data on QSPI for C33 on LittleFileSystem
 * | Info        : JV 2024
 *----------------
-* |	This version:   V1.0
+* |	This version:   V2.0
 * | Date        :   2024-01-16
 * | Info        :   Basic version
+*
+* Game data store / read functions based on LittleFile system in QSPI
 *
 ******************************************************************************/
 
@@ -38,7 +40,7 @@ extern void     Debug_Buffer(char* b,int s);
 extern uint8_t  Save_Data(struct EEData *O);
 extern uint8_t  Debug_Data(struct EEData *O);
 
-extern void     Read_Highscore(int* HS, int* HL);
-extern void     Write_Highscore(int  HS, int HL);
+extern void     Read_Highscore(int* HS, int* HL,long *T,int *K);
+extern void     Write_Highscore(int  HS, int HL,long T, int K);
 
 #endif

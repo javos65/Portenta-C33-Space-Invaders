@@ -4,12 +4,12 @@
 * | Info        : JV 2024
 * | Github      : https://github.com/javos65/Portenta-C33-Space-Invaders
 *----------------
-* |	This version:   V1.0
+* |	This version:   V2.0
 * | Date        :   2024-03-16
 * | IOriginal   :   Objecrtoriented setup : https://github.com/YXHYX/arduino-space-invaders
 *
 * Player object
-* Initiates Plaey Laser
+* Initiates Player Laser
 * Movement control of Player Laser
 * Keeps track of shoot bullets
 * Sense collision with Enemy Bombs
@@ -31,6 +31,7 @@ Player::Player(Waveshare_ILI9486 *tft, Control *C, int B) : tft(tft), C(C) {
 	this->bullet2Shoot = false;
 	this->prevx = 0, this->prevy = 0;
 	this->score = 0;
+  this->kills = 0;
 	this->buzzer = B;
 	this->explode = false;
 	this->alive = true;
@@ -40,6 +41,8 @@ Player::Player(Waveshare_ILI9486 *tft, Control *C, int B) : tft(tft), C(C) {
 Player::~Player(){
     delete this->tft;
     delete this->C;
+    this->score = 0;
+    this->kills = 0;
 }
 
 void Player::shoot(){
@@ -63,7 +66,7 @@ void Player::shoot(){
 
 	if(bulletShoot == true){ // first bullet
     this->tft->fillRect(this->bulletx, this->bullety, RAYX, RAYY, BLACK); // emove old ray
-		exbulletx = bulletx; exbullety=bullety; bullety-=8;		
+		exbulletx = bulletx; exbullety=bullety; bullety-=LASERSPEED;		
     if(bullety >= SKYLIMIT)
             this->tft->drawColors((int16_t)bulletx,(int16_t)bullety,(int16_t) RAYX, (int16_t) RAYY,(uint16_t *) Ray);
 		else
@@ -74,7 +77,7 @@ void Player::shoot(){
 
 	if(bullet2Shoot == true){ // secondbullet
     this->tft->fillRect(this->bullet2x, this->bullet2y, RAYX, RAYY, BLACK); // emove old ray
-		exbullet2x = bullet2x; exbullet2y=bullet2y; bullet2y -= 8;	
+		exbullet2x = bullet2x; exbullet2y=bullet2y; bullet2y -= LASERSPEED;	
     if(bullet2y >= SKYLIMIT)
       this->tft->drawColors((int16_t)bullet2x,(int16_t)bullet2y,(int16_t) RAYX, (int16_t) RAYY,(uint16_t *) Ray);
 		else
@@ -105,8 +108,16 @@ int Player::getScore(){
 	return this->score;
 }
 
+int Player::getKills(){
+	return this->kills;
+}
+
 void Player::addPoints(int points){
 	this->score = this->score + points;
+}	
+
+void Player::addKill(){
+	this->kills++; 
 }	
 
 bool Player::collide(int x1, int y1){

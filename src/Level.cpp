@@ -4,7 +4,7 @@
 * | Info        : JV 2024
 * | Github      : https://github.com/javos65/Portenta-C33-Space-Invaders
 *----------------
-* |	This version:   V1.0
+* |	This version:   V2.0
 * | Date        :   2024-03-16
 * | IOriginal   :   Objecrtoriented setup : https://github.com/YXHYX/arduino-space-invaders
 *
@@ -25,6 +25,7 @@ Level::Level(int difficulty, Waveshare_ILI9486 *tft, Control *C, int B) : m_tft(
 	this->init(difficulty, tft, C, B);
 	this->levelCompleted = false;
 	this->playerAlive = true;
+  this->aTimer =0;
 }
 
 Level::~Level()
@@ -32,8 +33,7 @@ Level::~Level()
 	delete this->m_player;
 	delete this->m_tft;
   delete this->C;
-	for(int i = 0; i < enemyAmount; i++)
-		delete this->m_enemyArray[i];
+	for(int i = 0; i < enemyAmount; i++) {delete this->m_enemyArray[i];}
 }
 
 //Getters
@@ -51,6 +51,11 @@ int Level::enemiesDead()
 int Level::getScore()
 {
 	return this->m_player->getScore();
+}
+
+int Level::getKills()
+{
+	return this->m_player->getKills();
 }
 
 bool Level::getLevelCompleted()
@@ -123,15 +128,13 @@ void Level::initEnemies(int amount, Waveshare_ILI9486 *tft, int B,int Orbit)
 	this->enemyAmount = amount;
 	for(int i = 0; i < this->enemyAmount; i++){
 		if(i < (MAXENEMY) )
-			this->m_enemyArray[i] = new Enemy(tft, ENEMYROWX+ i*ENEMYSX*2, ENEMYROWY + Orbit*ENEMYSY, B, 3);
+			this->m_enemyArray[i] = new Enemy(tft, ENEMYROWX+ i*ENEMYSX*3/2, ENEMYROWY + Orbit*ENEMYSY, B, 3);
 		else if(i>=MAXENEMY && i<(MAXENEMY*2))
-			this->m_enemyArray[i] = new Enemy(tft, ENEMYROWX+ (i-MAXENEMY)*ENEMYSX*2 +ENEMYSX/2, ENEMYROWY + 2*ENEMYSY + Orbit*ENEMYSY, B, 1);
+			this->m_enemyArray[i] = new Enemy(tft, ENEMYROWX+ (i-MAXENEMY)*ENEMYSX*3/2 +ENEMYSX/2, ENEMYROWY + 3*ENEMYSY/2 + Orbit*ENEMYSY, B, 1);
 		else if(i>=(2*MAXENEMY) && i < (3*MAXENEMY))
-			this->m_enemyArray[i] = new Enemy(tft, ENEMYROWX+ (i-2*MAXENEMY)*ENEMYSX*2, ENEMYROWY + 4*ENEMYSY+ Orbit*ENEMYSY, B, 2);
+			this->m_enemyArray[i] = new Enemy(tft, ENEMYROWX+ (i-2*MAXENEMY)*ENEMYSX*3/2, ENEMYROWY + 6*ENEMYSY/2+ Orbit*ENEMYSY, B, 2);
 		else if(i>=(3*MAXENEMY) && i < (4*MAXENEMY))
-			this->m_enemyArray[i] = new Enemy(tft, ENEMYROWX+ (i-3*MAXENEMY)*ENEMYSX*2 +ENEMYSX/2, ENEMYROWY + 6*ENEMYSY+ Orbit*ENEMYSY, B, 1);		
-    else if(i>=(4*MAXENEMY) && i < (5*MAXENEMY))
-			this->m_enemyArray[i] = new Enemy(tft, ENEMYROWX+ (i-2*MAXENEMY)*ENEMYSX*2, ENEMYROWY + 4*ENEMYSY+ Orbit*ENEMYSY, B, 3);  
+			this->m_enemyArray[i] = new Enemy(tft, ENEMYROWX+ (i-3*MAXENEMY)*ENEMYSX*3/2 +ENEMYSX/2, ENEMYROWY + 9*ENEMYSY/2+ Orbit*ENEMYSY, B, 1);		
 	}
 }
 
@@ -142,19 +145,24 @@ void Level::update()
 	if(!this->levelCompleted || this->playerAlive)
 	{
 		this->m_player->update();
-		for(int i = 0; i < this->enemyAmount; i++){
+    aTimer++ ; 
+		for(int i = this->enemyAmount-1; i >=0 ; i--){ // check enemirws, start with lower rows first
 			//while the enemy is still alive
 			if(this->m_enemyArray[i]->getAlive()){
 				
 				//check collisions of the player's bullet 
 				if(this->m_enemyArray[i]->collide(this->m_player->getBX(), this->m_player->getBY())){
-					this->m_player->stopShoot();					//stop the bullet
-					this->m_player->addPoints(m_enemyArray[i]->getType());					//and add points to the player, different point per type
+					this->m_player->stopShoot();					                                                      //stop the bullet
+					this->m_player->addPoints(m_enemyArray[i]->getType());					                            //and add points to the player, different point per type
+          if (m_enemyArray[i]->getAttack()) this->m_player->addPoints(m_enemyArray[i]->getType()*2);  //add extra points if attacker
+          this->m_player->addKill();					                                                        //and award kill to the player          
 				}
 				//check collisions of the player's bullet2 
 				if(this->m_enemyArray[i]->collide(this->m_player->getBX2(), this->m_player->getBY2())){
-					this->m_player->stopShoot2();					//stop the bullet2
-					this->m_player->addPoints(1);					//and add points to the player
+					this->m_player->stopShoot2();					                                                      //stop the bullet2
+					this->m_player->addPoints(m_enemyArray[i]->getType());					                            //and add points to the player, different point per type
+          if (m_enemyArray[i]->getAttack()) this->m_player->addPoints(m_enemyArray[i]->getType()*2);  //add extra points if attacker
+          this->m_player->addKill();					                                                        //and award kill to the player 
 				}
 
 				//if enemy's bomb collides with the player
@@ -163,6 +171,11 @@ void Level::update()
 					this->playerAlive = false;
 				
 				//update the enemy
+            if ( (aTimer > ATTACKRATE) && (! this->m_enemyArray[i]->getAttack()) )
+            {
+            aTimer = 0;
+            this->m_enemyArray[i]->setAttack(); // attack
+            }
 				this->m_enemyArray[i]->update();
 			}
 		}

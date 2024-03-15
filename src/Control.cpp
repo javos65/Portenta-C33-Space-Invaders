@@ -4,7 +4,7 @@
 * | Info        : JV 2024
 * | Github      : https://github.com/javos65/Portenta-C33-Space-Invaders
 *----------------
-* |	This version:   V1.0
+* |	This version:   V2.0
 * | Date        :   2024-03-16
 * | IOriginal   :   Objecrtoriented setup : https://github.com/YXHYX/arduino-space-invaders
 *
@@ -17,7 +17,7 @@
 
 Control::Control(Waveshare_ILI9486 *tft) : m_tft(tft)
   {
-	this->pressed_x = 0, this->pressed_y = 0, this->pressed_s = 0;
+	this->pressed_x = 0, this->pressed_y = 0, this->pressed_s = 0,this->pressed_l = 0;
 	this->prevx = 0, this->prevy = 0, this->prevs = 0;
   this->keyvalue = 0;
   this->BLEconnected = 0;
@@ -27,7 +27,8 @@ Control::~Control(){
 }
 
 void Control::getKeys(){
-	     
+	
+  this->touch = this->m_tft->getPoint();this->m_tft->normalizeTsPoint(touch);
   uint16_t c=0x0000;
   if(this->BLEconnected){
        c = BLEgetKey();          // read ble scancode 16 bit 0xffxx = pressed, 0x00xx = depressed
@@ -38,16 +39,15 @@ void Control::getKeys(){
               case 0xffaf : {this->prevy = this->pressed_y;this->pressed_y = -1;break;} // dowb arrow pressed   
               case 0xffa3 : {this->prevs = this->pressed_s;this->pressed_s = 1;break;} // dowb arrow pressed      
 
-              case 0x00ae : {this->prevx = this->pressed_x;this->pressed_x = 0;break;} // right arrow pressed
-              case 0x00ac : {this->prevx = this->pressed_x;this->pressed_x = 0;break;} // left arrow pressed    
-              case 0x00ad : {this->prevy = this->pressed_y;this->pressed_y = 0;break;} // up arrow pressed
-              case 0x00af : {this->prevy = this->pressed_y;this->pressed_y = 0;break;} // dowb arrow pressed   
-              case 0x00a3 : {this->prevs = this->pressed_s;this->pressed_s = 0;break;} // dowb arrow pressed         
+              case 0x00ae : {this->prevx = this->pressed_x;this->pressed_x = 0;break;} // right arrow depressed
+              case 0x00ac : {this->prevx = this->pressed_x;this->pressed_x = 0;break;} // left arrow depressed    
+              case 0x00ad : {this->prevy = this->pressed_y;this->pressed_y = 0;break;} // up arrow depressed
+              case 0x00af : {this->prevy = this->pressed_y;this->pressed_y = 0;break;} // dowb arrow depressed   
+              case 0x00a3 : {this->prevs = this->pressed_s;this->pressed_s = 0;break;} // dowb arrow depressed         
               default : {;}
 	            }
-  }
-  else{ // if no BLE, access stouch screen
-            this->touch = this->m_tft->getPoint();this->m_tft->normalizeTsPoint(touch);
+      }
+      else{ // if no BLE, access stouch screen - poor handling but ok ....
             if ( (touch.z>200) && (touch.y>LCDHEIGHT/2) ) // only touch lower part
                 {
                 this->pressed_x = 0;this->pressed_s=0;
@@ -56,8 +56,10 @@ void Control::getKeys(){
                     else {this->pressed_x = 0;this->pressed_s=1;}
                 }
              //else {this->pressed_x = 0;this->pressed_s=0;}
+      }
+this->pressed_l = 0;
+if ( (touch.x>LCDWIDTH/3) && (touch.x<2*LCDWIDTH/3) && (touch.y>LCDHEIGHT/3) && (touch.y<2*LCDHEIGHT/3) )  this->pressed_l = 1; // check touch in center of screen
 
-}
 
 }
 void Control::init(){	 
@@ -65,8 +67,8 @@ BLEinit();
 }
 
 void Control::clearKeys(){	 
-	this->pressed_x = 0, this->pressed_y = 0, this->pressed_s = 0;
-	this->prevx = 0, this->prevy = 0, this->prevs = 0;
+	this->pressed_x = 0; this->pressed_y = 0; this->pressed_s = 0;this->pressed_l = 0;
+	this->prevx = 0; this->prevy = 0; this->prevs = 0;
   this->keyvalue = 0;
 }
 
@@ -80,6 +82,10 @@ int Control::getCY(){
 
 int Control::getCS(){
 	return this->pressed_s;
+}
+
+int Control::getLINK(){
+	return this->pressed_l;
 }
 
 int Control::getBLE(){
