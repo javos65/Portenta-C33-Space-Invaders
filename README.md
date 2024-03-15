@@ -30,10 +30,10 @@ ___
 
 ## To do:
 + adding sound / music
-+ adding more statistics
++ adding more statistics -> DONE
 + adding highscore store -> DONE
 + adding touch control - > DONE
-+ adding better graphics - its a Renesas Demo now
++ adding better graphics -> DONE
 ___
 
 ### And please, don't ask about the 0xB19B00B5
